@@ -13,6 +13,8 @@ volatile unsigned long revolutions = 0;
 unsigned long lastTime = 0;  // Time to calculate speed
 float distance = 0.0;       // Total distance covered
 float speed = 0.0;          // Speed in meters per second
+volatile unsigned long lastTriggerTime = 0; // Last interrupt trigger time
+const unsigned long debounceDelay = 100;    // Debounce delay in milliseconds
 
 #define RESET_PIN 0
 
@@ -32,9 +34,12 @@ int value = 0;
 const char* resetTopic = "catwheel/reset"; 
 
 void count() {
-  cnt++;  // Increment the count every time the Hall sensor is triggered
-  revolutions++;       // Increment the count of total revolutions
-  
+  unsigned long currentTime = millis();
+  if (currentTime - lastTriggerTime > debounceDelay) {
+    cnt++;               // Increment the count every time the Hall sensor is triggered
+    revolutions++;       // Increment the total revolutions count
+    lastTriggerTime = currentTime;  // Update the last trigger time
+  } 
 }
 
 void setup() {

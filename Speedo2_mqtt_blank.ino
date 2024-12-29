@@ -5,26 +5,27 @@
 #include <ArduinoJson.h> 
 #include <Wire.h>
 
-const int hallPin = 3;  // Pin for the magentic Hall sensor
-const int led = 15;      // Pin for an LED 
-const float wheelCircumference = 2.98;  // Circumference of the wheel in meters
+const int hallPin = 5;  // Pin for the magentic Hall sensor
+const int led = 7;      // Pin for an LED 
+const float wheelCircumference = 2.82;  // Circumference of the wheel in meters
 volatile int cnt = 0;     // Counts the number of wheel rotations
 volatile unsigned long revolutions = 0;
 unsigned long lastTime = 0;  // Time to calculate speed
 float distance = 0.0;       // Total distance covered
 float speed = 0.0;          // Speed in meters per second
+
 volatile unsigned long lastTriggerTime = 0; // Last interrupt trigger time
-const unsigned long debounceDelay = 100;    // Debounce delay in milliseconds
+const unsigned long debounceDelay = 300;    // Debounce delay in milliseconds
 
 #define RESET_PIN 0
 
 //set up the Wifi and MQTT
-const char* ssid = "Wifi-name";
-const char* password = "Wifi-password";
-const char* mqttserver = "192.168.0.XX" //IP Address of your MQTT broker;
-const int mqttPort = 1883; // I am using HomeAssistant
+const char* ssid = "NOW5DI3J";
+const char* password = "rtUKZmP2XerY";
+const char* mqttserver = "192.168.0.31";
+const int mqttPort = 1883;
 const char* mqttUser = "homeassistant";
-const char* mqttPassword = "MQTT-password";
+const char* mqttPassword = "ahghah8naa5veevooghe7eeSheiyiliesaD6ahSei8eenu6iiqu7Riehu9nao1mu";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -47,9 +48,9 @@ void setup() {
   setup_wifi();
   client.setServer(mqttserver, 1883);
   client.setCallback(mqttCallback);
-  pinMode(hallPin, INPUT);   // Set Hall magnet pin as input
+  pinMode(hallPin, INPUT_PULLUP);   // Set Hall magnet pin as input
   pinMode(led, OUTPUT);      // Set LED pin as output (optional)
-  attachInterrupt(digitalPinToInterrupt(hallPin), count, FALLING); // Trigger count on falling edge
+  attachInterrupt(digitalPinToInterrupt(hallPin), count, RISING); // Trigger count on falling edge
 }
 
 void setup_wifi() {
@@ -93,8 +94,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void loop() {
   // Every 5 seconds, calculate speed and distance
   unsigned long currentTime = millis();
-   
-  if (currentTime - lastTime >= 5000) {  
+
+     if (currentTime - lastTime >= 5000) {  
     float timeInSeconds = (currentTime - lastTime) / 5000.0;
    
 
@@ -119,7 +120,7 @@ void loop() {
 
 // activated when an MQTT is recieved on "reset"
 void resetValues() {
-  wheelRevolutions = 0;
+  revolutions = 0;
   speed = 0;
   distance = 0;
   lastMsg = 0;
